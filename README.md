@@ -14,8 +14,8 @@ npx sequelize-cli db:migrate
 
 ###### ENV variables
 
--DB_NAME
--DB_HOST
--DB_PASSWORD
--DB_USER
--JWT_SECRET
+- DB_NAME
+- DB_HOST
+- DB_PASSWORD
+- DB_USER
+- JWT_SECRET
