@@ -18,16 +18,23 @@ scalar DateTime
   }
   
   extend type Mutation {
-    register(input: RegisterInput!): User
-    login(email: String!,password: String!): Token!
+
+    register(
+      firstName: String!,
+      lastName:String!,
+      email: String!,
+      password: String!
+      ): RegisterResponse!
+
+    login(
+      email: String!,
+      password: String!
+      ): Token!
    }
 
     type RegisterResponse {
-      id: Int!
-      firstName: String!
-      lastName:String!
-      email: String!
-      tasks:[Task!]
+      user:User!
+      token:String!
     }
     input RegisterInput {
       firstName: String!

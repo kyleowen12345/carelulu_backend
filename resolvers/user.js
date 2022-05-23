@@ -5,79 +5,120 @@ const {
 } = require('apollo-server-express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const {User,Task,Step} = require('../models/index');
+
 require('dotenv').config()
 
 
 module.exports = {
     Query: {
-        async allUsers() {
-            return await User.findAll({},{include:[Step,Task]});
+        async allUsers(_,args,{authUser,models:{userModel}}) {
+
+            if(!authUser) throw new AuthenticationError('You Must Login First')
+
+            try {
+
+                return await userModel.findAll({});
+
+            } catch (error) {
+
+                throw new ApolloError(error)
+
+            }
+           
          },
-         async fetchUser(_, args, {authUser} ) {
-            return await User.findOne({id:authUser.id});
+         async fetchUser(_, args, {authUser,models:{userModel}} ) {
+
+            if(!authUser) throw new AuthenticationError('You Must Login First')
+
+            try {
+
+                return await userModel.findOne({where:{id:authUser.id}});
+
+            } catch (error) {
+
+                throw new ApolloError(error)
+
+            }
+            
          },
     },
     Mutation: {
-         async login(_ , {email, password}){
+         async login(_ , {email, password},{models:{userModel}}){
             
-             const user = await User.findOne({ where: {email}});
-             if(!user){
-                 throw new AuthenticationError('No user Found with this email')
-             }
+            try {
+
+                const user = await userModel.findOne({ where: {email}});
+
+             if(!user) throw new AuthenticationError('User does not exist.')
+
              const valid = await bcrypt.compare(password, user.password);
-             if(!valid){
-                throw new AuthenticationError('invalid password')
-             }
+
+             if(!valid) throw new AuthenticationError('Your email or password is incorrect.')
+
              const token = jwt.sign({
                 id: user.id,
                 email: user.email 
             }, process.env.JWT_SECRET, {expiresIn: '24h'})
-             return {token}
+
+             return {token} 
+
+            } catch (error) {
+                
+                throw new ApolloError(error)
+
+            }
+            
          },
         
-        async register(root, {input}, context) {
-          const {firstName,lastName,email, password} = input
-          console.log(input)
-          const user = await User.create({ 
-            firstName,
-            lastName,
-            email,
-            password:await bcrypt.hash(password, 10) },{
-                include:[
-                    {
-                        model:Task, as:'tasks'
-                    }
-                ]
-            });
-            console.log(user)
-          return user
+        async register(root, {firstName,lastName,email, password},{models:{userModel}}) {
+   
+             
+          try {
+
+            const existingEmail = await userModel.findOne({ where: {email}});
+
+            if(existingEmail) return new AuthenticationError('email already exists')
+
+            const user = await userModel.create({ 
+                firstName,
+                lastName,
+                email,
+                password:await bcrypt.hash(password, 10) });
+            
+            const token = jwt.sign({
+                id: user.id,
+                email: user.email 
+            }, process.env.JWT_SECRET, {expiresIn: '24h'})
+
+            const response = {
+                user,
+                token
+            }    
+              return response
+              
+          } catch (error) {
+
+             throw new ApolloError(error)
+              
+          }
+         
         },
 
-        // async updateUser(_, {id, firstName, lastName}, {authUser}){
-        //     if(!authUser){
-        //       throw new AuthenticationError('You Must Login First')
-        //     }
-        //     try {
-        //     const user = await User.findById(id);
-        //     if(!user){
-        //         throw new Error('No User foudn for update, please check userid')
-        //       }
-        //     await user.update({
-        //         firstName,
-        //         lastName
-        //     });
-        //     return user;
-        //     }catch(err){
-        //       throw new ApolloError(err)
-        //     }
-        //   }    
+          
     },
     User:{
         tasks: async ({ id }, args, {models:{taskModel}}, info) => {
-            console.log(id)
-            const tasks = await taskModel.findAll({where: {userId: id},limit:5  });
-            return tasks;
+            try {
+
+                const tasks = await taskModel.findAll({where: {userId: id},limit:5  });
+                return tasks;
+
+            } catch (error) {
+
+                throw new ApolloError(error)
+
+            }
+            
           },
     }
 }

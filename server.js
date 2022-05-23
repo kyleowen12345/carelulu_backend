@@ -28,6 +28,7 @@ const resolvers = require('./resolvers');
 	
 	app.use(express.json())
 	app.use(cors(corsOptions));
+	app.use(helmet({ contentSecurityPolicy: (process.env.NODE_ENV === 'production') ? undefined : false }))
 
 
 	const getUser = async (req) => {

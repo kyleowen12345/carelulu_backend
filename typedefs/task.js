@@ -15,15 +15,39 @@ scalar DateTime
   
   extend type Query {
     Viewtask(id:Int!):Task!
-    Mytasks(curPage:Int!,perPage:Int!,fieldOrder:String!,sort:String!): [Task]
-    filterTasks(completed:Boolean!,createdDate:String!): [Task]
+    Mytasks(curPage:Int!,perPage:Int!,fieldOrder:String!,sort:String!): PaginatedTasks
   }
 
   extend type Mutation {
+
     createTask (
       title: String!
       note: String!
       status: String!
-    ): Task
+    ): Task!
+
+    updateTask (
+      id:Int!
+      title:String!
+      note:String!
+      status:String!
+    ): Task!
+
+    deleteTask (
+      id:Int!
+    ): DeleteResponse!
+
+    }
+
+    type DeleteResponse {
+      success:Boolean!
+      message:String!
+    }
+
+    type PaginatedTasks{
+      tasks:[Task!]
+      curPage:String
+      maxPage:Int
+      taskCount:Int
     }
   `
