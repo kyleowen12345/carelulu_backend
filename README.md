@@ -29,6 +29,6 @@ npx sequelize-cli db:migrate
 
 If something went wrong just send me an email: 
 
-[gakyleowen@gmail.com](gakyleowen@gmail.com)
+[gakyleowen@gmail.com](mailto:gakyleowen@gmail.com?subject=[GitHub]%20Carelulu_backend%20error)
 
 
