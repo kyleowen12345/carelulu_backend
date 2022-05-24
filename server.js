@@ -24,11 +24,11 @@ const resolvers = require('./resolvers');
 		optionsSuccessStatus: 200, // For legacy browser support
 		// method: "GET, POST, DELETE,",
 	};
-	
+
 	
 	app.use(express.json())
 	app.use(cors(corsOptions));
-	app.use(helmet({ contentSecurityPolicy: (process.env.NODE_ENV === 'production') ? undefined : false }))
+	app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }))
 
 
 	const getUser = async (req) => {
